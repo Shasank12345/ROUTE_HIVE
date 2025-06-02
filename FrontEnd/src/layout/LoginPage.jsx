@@ -18,7 +18,7 @@ export default function LoginPage() {
     return re.test(email);
   };
 
-  const login = () => {
+  const login = async () => {
     // Basic validation
     if (!email && !password) {
       setErrorMsg('Email and Password are required.');
@@ -42,7 +42,28 @@ export default function LoginPage() {
 
     // If everything is valid, clear error and proceed
     setErrorMsg('');
-    navigate('/verify');
+    try{
+      const response = await fetch('http://localhost:5000/login', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ email, password }),
+    });
+
+    const data = await response.json();
+
+    if (response.ok) {
+      alert('Login sucessful');
+      //navigate('/verify');
+    } else {
+      setErrorMsg(data.message || 'Login failed');
+    }
+    } catch (error) {
+        setErrorMsg('Failed to connect to server');
+
+      }
+   
   };
 
   const onforgot = () => {
@@ -66,6 +87,7 @@ export default function LoginPage() {
               focus:ring-2 focus:ring-purple-400"
               type="email"
               id="username"
+              name="email"
               placeholder="Email"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
@@ -77,6 +99,7 @@ export default function LoginPage() {
               focus:ring-2 focus:ring-purple-400"
               type={showPassword ? 'text' : 'password'}
               id="password"
+              name="password"
               placeholder="Password"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
