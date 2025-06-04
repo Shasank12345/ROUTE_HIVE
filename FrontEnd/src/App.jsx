@@ -3,12 +3,12 @@ import NavBar from './layout/NavBar'
 import { Routes, Route } from 'react-router-dom';
 import LoginPage from './layout/LoginPage'
 import Contact from './layout/Contact'
-
+import NewPassword from './layout/NewPassword'
 import Home from './layout/Home'
 import ForgotPassword from './layout/ForgotPassword'
 import './App.css'
 import EmailVerificationPage from './layout/EmailVerificationPage'
-import IsYourProfile from './layout/IsYourProfile';
+// import IsYourProfile from './layout/IsYourProfile';
 
 function App() {
 
@@ -23,7 +23,8 @@ function App() {
     <Route path="/verify" element={<EmailVerificationPage />} />
     <Route path="/forgot" element={<ForgotPassword/>} />
     <Route path="/contact" element={<Contact />} />
-    <Route path="/isyourprofile" element={<IsYourProfile />} />
+    {/* <Route path="/isyourprofile" element={<IsYourProfile />} /> */}
+     <Route path="/new" element={<NewPassword />} />
     </Routes>
       </div>
     </>

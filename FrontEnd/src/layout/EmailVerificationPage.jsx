@@ -1,6 +1,8 @@
 import React, { useState, useRef } from 'react';
+import { useNavigate } from 'react-router-dom';
 
 export default function EmailVerificationPage() {
+  const navigate = useNavigate();
   const [otp, setOtp] = useState({
     digitOne: '',
     digitTwo: '',
@@ -9,7 +11,9 @@ export default function EmailVerificationPage() {
     digitFive: '',
     digitSix: '',
   });
-
+ const submit = () => {
+    navigate('/new');
+  };
   const inputRefs = useRef([]);
 
   const handleChange = (e, index) => {
@@ -62,7 +66,8 @@ export default function EmailVerificationPage() {
         <h3 className="text-3xl font-semibold mb-6 text-center text-black">Enter OTP</h3>
         <div className="flex justify-center mb-6">{renderInput()}</div>
         <button
-          type="submit"
+          type="button"
+          onClick={submit}
           className="w-full py-3 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition"
         >
           Submit

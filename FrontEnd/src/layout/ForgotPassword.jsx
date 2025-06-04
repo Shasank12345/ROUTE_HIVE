@@ -24,7 +24,7 @@ export default function ForgotPassword() {
     }
 
     setErrorMsg('');
-    navigate('/isyourprofile');
+    navigate('/verify');
   };
 
   const login = () => {
