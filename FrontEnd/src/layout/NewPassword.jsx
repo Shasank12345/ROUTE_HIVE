@@ -8,18 +8,37 @@ export default function NewPassword() {
   const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState('');
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
 
     if (!password || !confirmPassword) {
       setError('Both fields are required.');
-    } else if (password !== confirmPassword) {
+      return;
+    }
+
+    if (password !== confirmPassword) {
       setError('Passwords do not match.');
-    } else {
-      setError('');
-      alert('Password successfully set!');
-      // Redirect to login page
-      navigate('/login');
+      return;
+    }
+
+    try {
+      const res = await fetch('http://localhost:5000/reset_password', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        credentials: 'include', 
+        body: JSON.stringify({ new_password: password })
+      });
+
+      const data = await res.json();
+
+      if (res.ok) {
+        alert('Password successfully reset!');
+        navigate('/login');
+      } else {
+        setError(data.message || 'Failed to reset password.');
+      }
+    } catch (error) {
+      setError('Server error.');
     }
   };
 

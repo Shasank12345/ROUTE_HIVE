@@ -11,20 +11,16 @@ export default function EmailVerificationPage() {
     digitFive: '',
     digitSix: '',
   });
- const submit = () => {
-    navigate('/new');
-  };
+
   const inputRefs = useRef([]);
+  const [error, setError] = useState('');
+  const [message, setMessage] = useState('');
 
   const handleChange = (e, index) => {
     const { name, value } = e.target;
+    if (!/^[0-9]?$/.test(value)) return;
 
-    if (!/^[0-9]?$/.test(value)) return; // Only allow 0-9 or empty
-
-    setOtp((prev) => ({
-      ...prev,
-      [name]: value,
-    }));
+    setOtp((prev) => ({ ...prev, [name]: value }));
 
     if (value && index < 5) {
       inputRefs.current[index + 1].focus();
@@ -33,9 +29,7 @@ export default function EmailVerificationPage() {
 
   const handleKeyDown = (e, index) => {
     if (e.key === 'Backspace' && !otp[Object.keys(otp)[index]]) {
-      if (index > 0) {
-        inputRefs.current[index - 1].focus();
-      }
+      if (index > 0) inputRefs.current[index - 1].focus();
     }
   };
 
@@ -54,10 +48,33 @@ export default function EmailVerificationPage() {
       />
     ));
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     const finalOtp = Object.values(otp).join('');
-    console.log('Submitted OTP:', finalOtp);
+
+    try {
+      const res = await fetch('http://localhost:5000/verify_otp', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        credentials: 'include',
+        body: JSON.stringify({ otp: finalOtp }),
+      });
+
+      const data = await res.json();
+
+      if (res.ok) {
+        setMessage(data.message);
+        setError('');
+        setTimeout(() => {
+          navigate('/new');
+        }, 1000);
+      } else {
+        setError(data.message || 'Invalid OTP');
+        setMessage('');
+      }
+    } catch {
+      setError('Server error');
+    }
   };
 
   return (
@@ -66,12 +83,13 @@ export default function EmailVerificationPage() {
         <h3 className="text-3xl font-semibold mb-6 text-center text-black">Enter OTP</h3>
         <div className="flex justify-center mb-6">{renderInput()}</div>
         <button
-          type="button"
-          onClick={submit}
+          type="submit"
           className="w-full py-3 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition"
         >
           Submit
         </button>
+        {message && <p className="text-green-600 mt-4 text-center">{message}</p>}
+        {error && <p className="text-red-600 mt-4 text-center">{error}</p>}
       </form>
     </div>
   );

@@ -4,7 +4,6 @@ import { useNavigate } from 'react-router-dom';
 export default function ForgotPassword() {
   const [email, setEmail] = useState('');
   const [errorMsg, setErrorMsg] = useState('');
-
   const navigate = useNavigate();
 
   const validateEmail = (email) => {
@@ -12,7 +11,9 @@ export default function ForgotPassword() {
     return re.test(email);
   };
 
-  const forgot = () => {
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+
     if (!email) {
       setErrorMsg('Email is required.');
       return;
@@ -23,12 +24,27 @@ export default function ForgotPassword() {
       return;
     }
 
-    setErrorMsg('');
-    navigate('/verify');
-  };
+    try {
+      const res = await fetch('http://localhost:5000/forgot_password', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        credentials: 'include',
+        body: JSON.stringify({ email }),
+      });
 
-  const login = () => {
-    navigate('/login');
+      const data = await res.json();
+
+      if (res.ok) {
+        setErrorMsg('OTP sent to your email.');
+        setTimeout(() => {
+          navigate('/verify'); 
+        }, 1000);
+      } else {
+        setErrorMsg(data.message || 'Failed to send OTP.');
+      }
+    } catch (err) {
+      setErrorMsg('Server error. Please try again later.');
+    }
   };
 
   return (
@@ -40,23 +56,23 @@ export default function ForgotPassword() {
         <p className="text-red-600 text-sm text-center mb-4">{errorMsg}</p>
       )}
 
-      <form onSubmit={(e) => e.preventDefault()}>
+      <form onSubmit={handleSubmit}>
         <div className="mb-8 relative">
           <input
             className="w-full p-3 rounded-lg bg-black bg-opacity-20 text-black placeholder-black focus:outline-none 
               focus:ring-2 focus:ring-purple-400"
             type="email"
-            id="username"
-            placeholder="Email"
+            placeholder="Enter your email"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
+            required
           />
         </div>
 
         <div className="mb-2 text-right">
           <button
             type="button"
-            onClick={login}
+            onClick={() => navigate('/login')}
             className="text-sm text-black-300 hover:text-black-100 transition"
           >
             Login!
@@ -66,10 +82,9 @@ export default function ForgotPassword() {
         <div>
           <button
             type="submit"
-            onClick={forgot}
             className="w-full py-5 bg-purple-600 text-black rounded-lg hover:bg-purple-700 transition duration-300"
           >
-            Forgot Password
+            Send OTP
           </button>
         </div>
       </form>
