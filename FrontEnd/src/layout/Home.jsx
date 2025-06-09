@@ -1,44 +1,50 @@
 import React from 'react'
 
 export default function ProjectHome() {
-  return (<>
-  <div className='relative top-[45px] bg-gray-200 '>
-     
-  <section class="text-center py-[20px] bg-gradient-to-r from-yellow-100 to-purple-100 h-[150px]  ">
-    <h2 class="text-4xl font-bold">FIND YOUR WAY</h2>
-    <p class="text-xl mt-[8px]">OWN YOUR TIME</p>
-    <p class="text-xl mt-[8px]">FEATURES</p>
-  </section>
-  <section class="grid grid-cols-2 md:grid-cols-20 gap-[50px] p-[50px]  pb-[20px]">
+  return (
+    <div className="pt-8 min-h-screen bg-gray-100">
+      
+      {}
+      <section className="bg-gradient-to-r from-yellow-100 to-purple-100 py-10">
+        <div className="max-w-6xl mx-auto text-center px-4">
+          <h2 className="text-4xl md:text-5xl font-extrabold text-purple-800">FIND YOUR WAY</h2>
+          <h3 className="text-3xl md:text-4xl font-extrabold  text-purple-800">OWN YOUR TIME</h3>
+          <br></br>
+          <p className="text-2xl font-extrabold  text-black-70/10"> OUR FEATURES INCLUDES </p>
+        </div>
+      </section>
 
-    <div class="bg-white shadow-lg rounded-3xl p-[50px] text-center w-[500px] h-[250px]   ">
-      <img src="https://img.icons8.com/ios-filled/100/bus.png" alt="Bus" class="mx-auto mb-[8px] w-[64px]"/>
-      <h3 class="font-semibold text-lg mb-1">Student Enrollment</h3>
-      <p class="text-sm text-gray-600">Manage student transport application</p>
+      {}
+      <section className="py-12 px-4 max-w-6xl mx-auto grid grid-cols-1 md:grid-cols-2 gap-10">
+        <FeatureCard
+          icon="https://img.icons8.com/ios-filled/100/bus.png"
+          title="Student Enrollment"
+          desc="Manage student transport applications easily."
+        />
+        <FeatureCard
+          icon="https://img.icons8.com/ios-filled/100/admin-settings-male.png"
+          title="Admin Management"
+          desc="Control user roles, routes, and complaints."
+        />
+        <FeatureCard
+          icon="https://img.icons8.com/ios-filled/100/map.png"
+          title="Bus Management"
+          desc="Assign and track buses for specific routes."
+        />
+        <FeatureCard
+          icon="https://img.icons8.com/ios-filled/100/appointment-reminders.png"
+          title="Notifications"
+          desc="Send alerts and arrival updates to users."
+        />
+      </section>
     </div>
-
-    <div class="bg-white shadow-lg rounded-3xl p-[50px] text-center w-[500px] h-[250px]">
-      <img src="https://img.icons8.com/ios-filled/100/admin-settings-male.png" alt="Admin" class="mx-auto mb-[8px] w-[64px]"/>
-      <h3 class="font-semibold text-lg mb-1">Admin Management</h3>
-      <p class="text-sm text-gray-600">Handle user roles and permissions</p>
-    </div>
-
-  </section>
-  <section class="grid grid-cols-2 md:grid-cols-20 gap-[50px] p-[50px] pt-[20px]">
-     <div class="bg-white shadow-lg rounded-3xl p-[50px] text-center w-[500px] h-[250px]">
-      <img src="https://img.icons8.com/ios-filled/100/map.png" alt="Map" class="mx-auto mb-[8px] w-[64px]"/>
-      <h3 class="font-semibold text-lg mb-1">Bus Management</h3>
-      <p class="text-sm text-gray-600">Assign buses to specific routes</p>
-    </div>
-
-    <div class="bg-white shadow-lg rounded-3xl p-[50px] text-center w-[500px] h-[250px]">
-      <img src="https://img.icons8.com/ios-filled/100/appointment-reminders.png" alt="Notification" class="mx-auto mb-[8px] w-[64px]"/>
-      <h3 class="font-semibold text-lg mb-[1px]">Notification</h3>
-      <p class="text-sm text-gray-600">Send alerts and updates</p>
-    </div>
-  </section>
-  </div>
-  </>
-
   )
 }
+
+const FeatureCard = ({ icon, title, desc }) => (
+  <div className="bg-white rounded-xl shadow-md p-8 text-center hover:shadow-slate-600 transition duration-300">
+    <img src={icon} alt={title} className="mx-auto w-16 mb-4" />
+    <h3 className="text-xl font-semibold mb-2 text-purple-700">{title}</h3>
+    <p className="text-gray-600">{desc}</p>
+  </div>
+)

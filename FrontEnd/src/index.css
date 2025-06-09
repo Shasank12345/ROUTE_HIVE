@@ -1,3 +1,9 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+
+/* body { */
+  /* @apply bg-cover bg-center bg-no-repeat min-h-screen bg-opacity-100; */
+  /* background-image: url('https://png.pngtree.com/thumb_back/fh260/background/20220522/pngtree-tourist-express-bus-rides-on-the-road-against-the-backdrop-of-image_1385295.jpg'); */
+/* } */

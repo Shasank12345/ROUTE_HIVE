@@ -9,127 +9,105 @@ export default function LoginPage() {
   const [errorMsg, setErrorMsg] = useState('');
 
   const navigate = useNavigate();
-
   const togglePassword = () => setShowPassword(!showPassword);
 
-  const validateEmail = (email) => {
-    // Simple email regex
-    const re = /\S+@\S+\.\S+/;
-    return re.test(email);
-  };
+  const validateEmail = (email) => /\S+@\S+\.\S+/.test(email);
 
   const login = async () => {
-    // Basic validation
-    if (!email && !password) {
+    if (!email || !password) {
       setErrorMsg('Email and Password are required.');
       return;
     }
 
-     else if (!email) {
-      setErrorMsg('Email is required.');
-      return;
-    }
-
-    else if (!password) {
-      setErrorMsg('Password is required.');
-      return;
-    }
-
     if (!validateEmail(email)) {
-      setErrorMsg('Please enter a valid email address.');
+      setErrorMsg('Enter a valid email address.');
       return;
     }
 
-    // If everything is valid, clear error and proceed
     setErrorMsg('');
-    try{
+    try {
       const response = await fetch('http://localhost:5000/login', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({ email, password }),
-    });
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email, password }),
+      });
 
-    const data = await response.json();
+      const data = await response.json();
 
-    if (response.ok) {
-      alert('Login sucessful');
-      //navigate('/verify');
-    } else {
-      setErrorMsg(data.message || 'Login failed');
-    }
-    } catch (error) {
-        setErrorMsg('Failed to connect to server');
-
+      if (response.ok) {
+        alert('Login successful');
+      } else {
+        setErrorMsg(data.message || 'Login failed');
       }
-   
+    } catch (error) {
+      setErrorMsg('Failed to connect to server');
+    }
   };
 
-  const onforgot = () => {
-    navigate('/forgot');
-  };
+  const onforgot = () => navigate('/forgot');
 
   return (
-    <div>
-      <div className="relative z-10 bg-black bg-opacity-5 rounded-3xl shadow-3xl p-20 w-[500px] 
-          top-20 mx-auto backdrop-blur-lg border border-black border-opacity-40">
-        <h2 className="text-center text-3xl font-bold text-black mb-4">Login</h2>
+    <div
+      className="min-h-screen bg-cover bg-center flex items-center justify-center"
+      style={{
+        backgroundImage:
+          "url('https://png.pngtree.com/thumb_back/fh260/background/20220522/pngtree-tourist-express-bus-rides-on-the-road-against-the-backdrop-of-image_1385295.jpg')",
+      }}
+    >
+      <div className="absolute inset-0 bg-black bg-opacity-40 backdrop-blur-sm" />
+
+      <div className="relative z-10 bg-white/10 backdrop-blur-2xl rounded-3xl shadow-xl p-10 w-full max-w-md border border-white/20">
+        <h2 className="text-center text-3xl font-semibold text-white mb-6 drop-shadow-md">
+          Login
+        </h2>
 
         {errorMsg && (
-          <p className="text-red-600 text-sm text-center mb-4">{errorMsg}</p>
+          <p className="text-red-300 text-sm text-center mb-4">{errorMsg}</p>
         )}
 
-        <form onSubmit={(e) => e.preventDefault()}>
-          <div className="mb-8 relative">
+        <form onSubmit={(e) => e.preventDefault()} className="space-y-6">
+          <div className="relative">
             <input
-              className="w-full p-3 rounded-lg bg-black bg-opacity-20 text-black placeholder-black focus:outline-none 
-              focus:ring-2 focus:ring-purple-400"
               type="email"
-              id="username"
-              name="email"
               placeholder="Email"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
+              className="w-full px-4 py-3 rounded-xl bg-white/20 text-white placeholder-white focus:outline-none focus:ring-2 focus:ring-purple-400"
             />
           </div>
-          <div className="mb-6 relative">
+
+          <div className="relative">
             <input
-              className="w-full p-3 pr-10 rounded-lg bg-black bg-opacity-20 text-black placeholder-black focus:outline-none 
-              focus:ring-2 focus:ring-purple-400"
               type={showPassword ? 'text' : 'password'}
-              id="password"
-              name="password"
               placeholder="Password"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
+              className="w-full px-4 py-3 pr-10 rounded-xl bg-white/20 text-white placeholder-white focus:outline-none focus:ring-2 focus:ring-purple-400"
             />
             <button
               type="button"
               onClick={togglePassword}
-              className="absolute right-3 top-3 text-black opacity-50 hover:opacity-80"
+              className="absolute right-3 top-3 text-white/70 hover:text-white"
             >
               {showPassword ? <EyeOff size={20} /> : <Eye size={20} />}
             </button>
           </div>
-          <div className="mb-2 text-right">
+
+          <div className="text-right">
             <button
-              type="button"
               onClick={onforgot}
-              className="text-sm text-black-300 hover:text-black-100 transition"
+              className="text-sm text-purple-300 hover:text-purple-100 transition"
             >
               Forgot Password?
             </button>
           </div>
-          <div>
-            <button
-              onClick={login}
-              type="submit"
-              className="w-full py-5 bg-purple-600 text-black rounded-lg hover:bg-purple-700 transition duration-300"
-            >
-              Login
-            </button>
-          </div>
+
+          <button
+            onClick={login}
+            className="w-full py-3 rounded-xl bg-purple-600 text-white hover:bg-purple-700 transition shadow-md"
+          >
+            Login
+          </button>
         </form>
       </div>
     </div>
