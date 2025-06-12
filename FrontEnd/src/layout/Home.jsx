@@ -1,8 +1,8 @@
 import React from 'react'
 
-export default function ProjectHome() {
+export default function Home() {
   return (
-    <div className="pt-8 min-h-screen bg-gray-100">
+    <div className="relative pt-8 min-h-screen bg-gray-100 top-[45px]">
       
       {}
       <section className="bg-gradient-to-r from-yellow-100 to-purple-100 py-10">
