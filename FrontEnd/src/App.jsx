@@ -9,6 +9,7 @@ import ForgotPassword from './layout/ForgotPassword'
 import './App.css'
  import EmailVerificationPage from './layout/EmailVerificationPage'
 import AdminDashboard from './layout/AdminDashboard';
+import EnrollPage from './layout/EnrollPage';
 
 
 function App() {
@@ -26,6 +27,7 @@ function App() {
     <Route path="/contact" element={<Contact />} />
      <Route path="/new" element={<NewPassword />} />
      <Route path='/admindashboard' element={<AdminDashboard/>} />
+     <Route path='/enroll' element={<EnrollPage/>} />
     </Routes>
       </div>
     </>
