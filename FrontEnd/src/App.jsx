@@ -10,6 +10,8 @@ import AdminDashboard from './layout/AdminDashboard';
 import EnrollPage from './layout/EnrollPage';
 import Respond1 from './layout/Respond1';
 import Respond2 from './layout/Respond2';
+import UserDashboard from './layout/UserDashboard';
+import DriverDashboard from './layout/DriverDashboaRD';
 
 function App() {
   return (
@@ -93,6 +95,13 @@ function App() {
         <Route path="respond1" element={<Respond1 />} />
         <Route path="respond2" element={<Respond2 />} />
       </Route>
+
+       {/* User dashboard route WITHOUT NavBar */}
+      <Route path="/userdashboard" element={<UserDashboard />} />
+
+      {/* Driver dashboard route WITHOUT NavBar */}
+      <Route path="/driverdashboard" element={<DriverDashboard />} />
+
     </Routes>
   );
 }
