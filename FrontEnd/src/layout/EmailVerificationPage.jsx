@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 
 export default function EmailVerificationPage() {
   const navigate = useNavigate();
+
   const [otp, setOtp] = useState({
     digitOne: '',
     digitTwo: '',
@@ -11,13 +12,12 @@ export default function EmailVerificationPage() {
     digitFive: '',
     digitSix: '',
   });
+
   const inputRefs = useRef([]);
   const [error, setError] = useState('');
   const [message, setMessage] = useState('');
   const [timeLeft, setTimeLeft] = useState(120);
   const [resendDisabled, setResendDisabled] = useState(true);
-  const [shake, setShake] = useState(false);
-  const [isSubmitting, setIsSubmitting] = useState(false);
 
   useEffect(() => {
     if (!resendDisabled) return;
@@ -25,8 +25,8 @@ export default function EmailVerificationPage() {
     const timerId = setInterval(() => {
       setTimeLeft((prev) => {
         if (prev <= 1) {
-          setResendDisabled(false);
           clearInterval(timerId);
+          setResendDisabled(false);
           return 0;
         }
         return prev - 1;
@@ -46,7 +46,7 @@ export default function EmailVerificationPage() {
     const { name, value } = e.target;
     if (!/^[0-9]?$/.test(value)) return;
 
-    setShake(false);
+    setError('');
     setOtp((prev) => ({ ...prev, [name]: value }));
 
     if (value && index < 5) {
@@ -71,8 +71,7 @@ export default function EmailVerificationPage() {
         ref={(el) => (inputRefs.current[index] = el)}
         onChange={(e) => handleChange(e, index)}
         onKeyDown={(e) => handleKeyDown(e, index)}
-        className={`w-14 h-14 text-2xl text-center rounded-xl mr-4 p-2 bg-gray-50 border border-gray-300 focus:outline-none focus:ring-4 focus:ring-purple-400 transition shadow-sm ${shake ? 'animate-shake' : ''
-          }`}
+        className="w-14 h-14 text-2xl text-center rounded-xl mr-4 p-2 bg-gray-50 border border-gray-300 focus:outline-none focus:ring-4 focus:ring-purple-400 transition shadow-sm"
         autoComplete="off"
       />
     ));
@@ -80,7 +79,6 @@ export default function EmailVerificationPage() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     const finalOtp = Object.values(otp).join('');
-    setIsSubmitting(true);
 
     try {
       const res = await fetch('http://localhost:5000/verify_otp', {
@@ -97,28 +95,20 @@ export default function EmailVerificationPage() {
         setError('');
         setResendDisabled(true);
         setTimeLeft(120);
-        setShake(false);
         setTimeout(() => navigate('/new'), 1000);
       } else {
         setError(data.message || 'Invalid OTP');
         setMessage('');
-        // ❌ Don't allow resend just because OTP is wrong
-        setShake(true);
-        setTimeout(() => setShake(false), 500);
       }
     } catch {
       setError('Server error. Please try again.');
       setMessage('');
-      setShake(true);
-      setTimeout(() => setShake(false), 500);
-    } finally {
-      setIsSubmitting(false);
     }
   };
 
   const handleResendOtp = async () => {
     try {
-      const res = await fetch('http://localhost:5000/forgot_password/resend', {
+      const res = await fetch('http://localhost:5000/resend_otp', {
         method: 'POST',
         credentials: 'include',
         headers: { 'Content-Type': 'application/json' },
@@ -151,72 +141,54 @@ export default function EmailVerificationPage() {
   };
 
   return (
-    <>
-      <style>
-        {`
-          @keyframes shake {
-            0%, 100% { transform: translateX(0); }
-            20%, 60% { transform: translateX(-8px); }
-            40%, 80% { transform: translateX(8px); }
-          }
-          .animate-shake {
-            animation: shake 0.5s;
-          }
-        `}
-      </style>
+    <div className="flex items-center justify-center min-h-screen bg-gradient-to-br from-purple-300 via-blue-400 to-gray-100 px-4">
+      <div className="relative max-w-md w-full bg-white rounded-3xl shadow-2xl p-10 backdrop-blur-sm bg-opacity-70">
+        <h3 className="text-3xl font-bold mb-8 text-center text-gray-800 tracking-wide">
+          Enter OTP
+        </h3>
 
-      <div className="flex items-center justify-center min-h-screen bg-gradient-to-br from-purple-300 via-blue-400 to-gray-100 px-4">
-        <div className="relative max-w-md w-full bg-white rounded-3xl shadow-2xl p-10 backdrop-blur-sm bg-opacity-70">
-          <h3 className="text-3xl font-bold mb-8 text-center text-gray-800 tracking-wide">
-            Enter OTP
-          </h3>
+        <form onSubmit={handleSubmit} className="flex flex-col items-center">
+          <div className="flex mb-8">{renderInput()}</div>
 
-          <form onSubmit={handleSubmit} className="flex flex-col items-center">
-            <div className="flex mb-8">{renderInput()}</div>
+          <div className="w-full flex justify-end mb-6">
+            {resendDisabled ? (
+              <p className="text-sm text-gray-700">
+                Resend OTP in{' '}
+                <span className="font-semibold text-purple-700">
+                  {formatTime(timeLeft)}
+                </span>
+              </p>
+            ) : (
+              <button
+                type="button"
+                onClick={handleResendOtp}
+                className="text-sm text-purple-700 font-semibold hover:underline"
+              >
+                Resend OTP
+              </button>
+            )}
+          </div>
 
-            <div className="w-full flex justify-end mb-6">
-              {resendDisabled ? (
-                <p className="text-sm text-gray-700">
-                  Resend otp at:{' '}
-                  <span className="font-semibold text-purple-700">
-                    {formatTime(timeLeft)}
-                  </span>
-                </p>
-              ) : (
-                <button
-                  type="button"
-                  onClick={handleResendOtp}
-                  className="text-sm text-purple-700 font-semibold hover:underline"
-                >
-                  Resend OTP
-                </button>
-              )}
-            </div>
+          <button
+            type="submit"
+            className="w-full py-3 bg-purple-700 hover:bg-purple-800 text-white font-bold rounded-full transition-shadow shadow-md"
+          >
+            Submit
+          </button>
+        </form>
 
+        {message && (
+          <p className="mt-6 text-center text-green-600 font-semibold flex items-center justify-center gap-2">
+            ✅ {message}
+          </p>
+        )}
 
-            <button
-              type="submit"
-              disabled={isSubmitting}
-              className={`w-full py-3 ${isSubmitting ? 'bg-purple-300 cursor-wait' : 'bg-purple-700 hover:bg-purple-800'
-                } text-white font-bold rounded-full transition-shadow shadow-md`}
-            >
-              {isSubmitting ? 'Submitting...' : 'Submit'}
-            </button>
-          </form>
-
-          {message && (
-            <p className="mt-6 text-center text-green-600 font-semibold flex items-center justify-center gap-2">
-              ✅ {message}
-            </p>
-          )}
-
-          {error && (
-            <p className="mt-6 text-center text-red-600 font-semibold flex items-center justify-center gap-2">
-              ❌ {error}
-            </p>
-          )}
-        </div>
+        {error && (
+          <p className="mt-6 text-center text-red-600 font-semibold flex items-center justify-center gap-2">
+            ❌ {error}
+          </p>
+        )}
       </div>
-    </>
+    </div>
   );
 }

@@ -13,26 +13,87 @@ import Respond2 from './layout/Respond2';
 
 function App() {
   return (
-    <>
-      <NavBar />
-      <Routes>
-        <Route path="/" element={<Home />} />
-        <Route path="/login" element={<LoginPage />} />
-        <Route path="/home" element={<Home />} />
-        <Route path="/verify" element={<EmailVerificationPage />} />
-        <Route path="/forgot" element={<ForgotPassword />} />
-        <Route path="/contact" element={<Contact />} />
-        <Route path="/new" element={<NewPassword />} />
-        <Route path="/enroll" element={<EnrollPage />} />
+    <Routes>
+      {/* navbar route */}
+      <Route
+        path="/"
+        element={
+          <>
+            <NavBar />
+            <Home />
+          </>
+        }
+      />
+      <Route
+        path="/home"
+        element={
+          <>
+            <NavBar />
+            <Home />
+          </>
+        }
+      />
+      <Route
+        path="/login"
+        element={
+          <>
+            <NavBar />
+            <LoginPage />
+          </>
+        }
+      />
+      <Route
+        path="/verify"
+        element={
+          <>
+            <NavBar />
+            <EmailVerificationPage />
+          </>
+        }
+      />
+      <Route
+        path="/forgot"
+        element={
+          <>
+            <NavBar />
+            <ForgotPassword />
+          </>
+        }
+      />
+      <Route
+        path="/contact"
+        element={
+          <>
+            <NavBar />
+            <Contact />
+          </>
+        }
+      />
+      <Route
+        path="/new"
+        element={
+          <>
+            <NavBar />
+            <NewPassword />
+          </>
+        }
+      />
+      <Route
+        path="/enroll"
+        element={
+          <>
+            <NavBar />
+            <EnrollPage />
+          </>
+        }
+      />
 
-        {/* Nested routes under AdminDashboard */}
-        <Route path="/admindashboard" element={<AdminDashboard />}>
-          <Route path="respond1" element={<Respond1 />} />
-          <Route path="respond2" element={<Respond2 />} />
-        </Route>
-
-      </Routes>
-    </>
+      {/* Admin Dashboard route */}
+      <Route path="/admindashboard" element={<AdminDashboard />}>
+        <Route path="respond1" element={<Respond1 />} />
+        <Route path="respond2" element={<Respond2 />} />
+      </Route>
+    </Routes>
   );
 }
 

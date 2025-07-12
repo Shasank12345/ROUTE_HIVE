@@ -9,14 +9,16 @@ export default function EnrollPage() {
         role: '',
         school: '',
     });
+    const[errorMsg,setErrorMsg]=useState('');
 
     const handleChange = (e) => {
         const { name, value } = e.target;
         setFormData(prev => ({ ...prev, [name]: value }));
     };
 
-    const handleSubmit = (e) => {
+    const handleSubmit =async (e) =>{
         e.preventDefault();
+
         const { name, email, phone, address, role, school } = formData;
 
         if (!name || !email || !phone || !address || !role || !school) {
@@ -29,23 +31,43 @@ export default function EnrollPage() {
             alert("Phone number must be exactly 10 digits.");
             return;
         }
+        try{
+            const response =await fetch('http://localhost:5000/enroll/enroll',{
+                method:'POST',
+                headers:{
+                    'Content-Type':'application/json',
 
-        console.log('Submitted Data:', formData);
-        alert("Thank you! Your enrollment has been submitted.");
+                },
+                body: JSON.stringify(formData),
+            });
+            if(!response.ok){
+                throw new Error("Failed to sumbit form");
+            }
+            const result= await response.json();
+            console.log('Server Response:',result);
+            alert("Thank you! Your Enrollment has been sumbitted ");
+            setFormData({
+                name:'',
+                email:'',
+                phone:'',
+                address:'',
+                role:'',
+                school:'',
 
-        setFormData({
-            name: '',
-            email: '',
-            phone: '',
-            address: '',
-            role: '',
-            school: '',
-        });
+
+            });
+        }catch (error) {
+            console.error("ERROR SUMBITTING FORM:",error);
+            alert("Something went wrong while sumbitting , please try again");
+
+
+        }
+     
     };
 
     return (
         <div className="relative top-[45px] min-h-screen bg-gray-100 pt-8">
-            {/* Gradient Header */}
+            {}
             <section className="bg-gradient-to-r from-yellow-100 to-purple-100 py-10">
                 <div className="max-w-6xl mx-auto text-center px-4">
                     <h2 className="text-4xl md:text-5xl font-extrabold text-purple-800">ENROLL NOW</h2>
@@ -58,12 +80,12 @@ export default function EnrollPage() {
                 <div className="bg-white rounded-xl shadow-lg p-10 w-full max-w-2xl">
                     <form onSubmit={handleSubmit} className="space-y-6">
                         {[
-                            { id: 'name', label: 'Full Name', placeholder: 'Enter your full name' },
-                            { id: 'email', label: 'Email Address', placeholder: 'Enter your email', type: 'email' },
-                            { id: 'phone', label: 'Phone Number', placeholder: 'Enter your 10-digit phone number', type: 'tel' },
-                            { id: 'address', label: 'Pickup Address', placeholder: 'Enter your pickup address' },
-                            { id: 'role', label: 'Role', placeholder: 'e.g., Student or Faculty' },
-                            { id: 'school', label: 'School / Branch', placeholder: 'Enter your school or branch' },
+                            { id: 'name',name:'name', label: 'Full Name', placeholder: 'Enter your full name' },
+                            { id: 'email',name:"email", label: 'Email Address', placeholder: 'Enter your email', type: 'email' },
+                            { id: 'phone',name:"phone", label:'Phone Number', placeholder: 'Enter your 10-digit phone number', type: 'tel' },
+                            { id: 'address',name:"address", label: 'Pickup Address', placeholder: 'Enter your pickup address' },
+                            { id: 'role',name:"role", label: 'Role', placeholder: 'e.g., Student or Faculty' },
+                            { id: 'school',name:"school", label: 'School / Branch', placeholder: 'Enter your school or branch' },
                         ].map(({ id, label, placeholder, type = 'text' }) => (
                             <div key={id}>
                                 <label htmlFor={id} className="block text-sm font-medium text-gray-700 mb-1">

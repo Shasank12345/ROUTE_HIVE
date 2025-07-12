@@ -1,13 +1,17 @@
+import dotenv
+import os
+
+dotenv.load_dotenv()
+
 class Config:
-    SECRET_KEY ='my_secret_key'
-    SESSION_COOKIE_SAMESITE = 'Lax'
-    SESSION_COOKIE_SECURE = False
-    SQLALCHEMY_DATABASE_URI='sqlite:///Route_hive.db'
-    MAIL_SERVER='smtp.gmail.com'
-    MAIL_USERNAME='shasanksingh000@gmail.com' #admin mail
-    MAIL_PASSWORD='geampyetiphqtaxg'#app password 
-    MAIL_PORT=587
-    
+    SECRET_KEY = os.getenv('secret_key')
+    SQLALCHEMY_DATABASE_URI = 'sqlite:///Route_hive.db'
+    MAIL_SERVER = 'smtp.gmail.com'
+    MAIL_USERNAME = os.getenv('admin_email')
+    MAIL_PASSWORD = os.getenv('app_password')
+    MAIL_PORT = 587
+    ADMIN_PASSWORD= os.getenv('admin_password')
+
     
     
     

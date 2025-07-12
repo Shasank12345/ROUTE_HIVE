@@ -7,6 +7,7 @@ export default function LoginPage() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [errorMsg, setErrorMsg] = useState('');
+  const[message, setMsg]=useState('');
 
   const navigate = useNavigate();
   const togglePassword = () => setShowPassword(!showPassword);
@@ -34,8 +35,15 @@ export default function LoginPage() {
 
       const data = await response.json();
 
-      if (response.ok) {
-        alert('Login successful');
+      if (data.type=== "admin") {
+        navigate('/AdminDashboard');
+        setMsg(data.message||'login sucessful');
+
+      }
+      else if(data.type=="user"){
+        alert('LOGIN SUCESSFULLY');
+        setMsg(data.message||'login sucessful');
+
       } else {
         setErrorMsg(data.message || 'Login failed');
       }

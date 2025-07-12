@@ -1,38 +1,77 @@
-import React from 'react'
+import React from 'react';
+import { useLocation } from 'react-router-dom';
 
 export default function Respond2() {
+  const { state: entry } = useLocation();
+
+  const handleAccept = async () => {
+    try {
+      const res = await fetch('http://localhost:5000/enroll/accept', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email: entry.email })
+      });
+
+      const result = await res.json();
+      alert(result.message || 'User accepted!');
+    } catch (err) {
+      console.error(err);
+      alert("Error during acceptance.");
+    }
+  };
+
+  const handleReject = async () => {
+    try {
+      const res = await fetch('http://localhost:5000/enroll/reject', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email: entry.email })
+      });
+
+      const result = await res.json();
+      alert(result.message || 'User rejected.');
+    } catch (err) {
+      console.error(err);
+      alert("Error during rejection.");
+    }
+  };
+
   return (
-    <div className="flex items-center justify-center min-h-screen ">
-      <div className="relative group border p-6 shadow-lg w-full sm:w-[45%] md:w-[40%] max-w-[400px] rounded-lg bg-white bg-gradient-to-br from-purple-50 to-yellow-50">
+    <div className="flex items-center justify-center min-h-screen pt-[60px]">
+      <div className="border p-6 shadow-lg w-full sm:w-[45%] md:w-[40%] max-w-[400px] rounded-lg bg-gradient-to-br from-purple-50 to-yellow-50">
+        
         <div className="mb-4">
           <label className="block text-sm font-medium text-gray-600 mb-1">
             Full Name:
             <input
-              id="fullname"
               type="text"
-              className="w-full mt-1 px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400"
+              value={entry.fullname || ''}
+              readOnly
+              className="w-full mt-1 px-4 py-2 border border-gray-300 rounded-lg"
             />
           </label>
         </div>
 
         <div className="mb-4">
           <label className="block text-sm font-medium text-gray-600 mb-1">
-            Email Address
+            Email Address:
             <input
-              id="emailaddress"
               type="text"
-              className="w-full mt-1 px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400"
+              value={entry.email || ''}
+              readOnly
+              className="w-full mt-1 px-4 py-2 border border-gray-300 rounded-lg"
             />
           </label>
         </div>
 
         <div className="mb-4">
           <label className="block text-sm font-medium text-gray-600 mb-1">
-           Phone Number:
+            Phone Number:
             <input
-              id="phonenumber"
               type="text"
-              className="w-full mt-1 px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400"
+              value={entry.phonenumber || ''}
+              readOnly
+              className="w-full mt-1 px-4 py-2 border border-gray-300 rounded-lg"
             />
           </label>
         </div>
@@ -41,9 +80,10 @@ export default function Respond2() {
           <label className="block text-sm font-medium text-gray-600 mb-1">
             Pickup Address:
             <input
-              id="pickupaddress"
               type="text"
-              className="w-full mt-1 px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400"
+              value={entry.pickupstation || ''}
+              readOnly
+              className="w-full mt-1 px-4 py-2 border border-gray-300 rounded-lg"
             />
           </label>
         </div>
@@ -52,9 +92,10 @@ export default function Respond2() {
           <label className="block text-sm font-medium text-gray-600 mb-1">
             Role:
             <input
-              id="role"
               type="text"
-              className="w-full mt-1 px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400"
+              value={entry.role || ''}
+              readOnly
+              className="w-full mt-1 px-4 py-2 border border-gray-300 rounded-lg"
             />
           </label>
         </div>
@@ -63,23 +104,29 @@ export default function Respond2() {
           <label className="block text-sm font-medium text-gray-600 mb-1">
             School/Branch:
             <input
-              id="school"
               type="text"
-              className="w-full mt-1 px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400"
+              value={entry.school || ''}
+              readOnly
+              className="w-full mt-1 px-4 py-2 border border-gray-300 rounded-lg"
             />
           </label>
         </div>
-       <div className="flex gap-4 mt-4 justify-center">
-         <button  className="bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600 mr-2"
-              >
-                Accept
-              </button>
-                <button  className="bg-red-500 text-white px-4 py-2 rounded-lg hover:bg-red-600"
-              >
-                Reject
-              </button>
-       </div>
+
+        <div className="flex gap-4 mt-4 justify-center">
+          <button
+            onClick={handleAccept}
+            className="bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600"
+          >
+            Accept
+          </button>
+          <button
+            onClick={handleReject}
+            className="bg-red-500 text-white px-4 py-2 rounded-lg hover:bg-red-600"
+          >
+            Reject
+          </button>
+        </div>
       </div>
     </div>
-  )
+  );
 }
