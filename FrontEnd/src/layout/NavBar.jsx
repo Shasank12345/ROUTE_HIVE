@@ -10,7 +10,11 @@ export default function NavBar() {
     { name: 'Home', to: '/' },
     { name: 'Contact', to: '/contact' },
     { name: 'Login', to: '/login' },
-    { name: 'Enroll', to: '/enroll' },
+  ];
+
+  const enrollSubLinks = [
+    { name: 'Enroll as Driver', to: '/enroll/driver' },
+    { name: 'Enroll as User', to: '/enroll/user' },
   ];
 
   return (
@@ -27,7 +31,7 @@ export default function NavBar() {
         </Link>
 
         {/* Desktop Nav */}
-        <nav className="hidden md:flex items-center space-x-6 text-gray-800 font-medium">
+        <nav className="hidden md:flex items-center space-x-6 text-gray-800 font-medium relative">
           {links.map(({ name, to }, idx) => (
             <React.Fragment key={name}>
               <Link
@@ -46,6 +50,35 @@ export default function NavBar() {
               )}
             </React.Fragment>
           ))}
+
+          {/* Enroll with CSS hover dropdown */}
+          <div className="relative group">
+            <span
+              className={`relative pb-1 px-2 cursor-pointer select-none transition-colors duration-300 ${
+                location.pathname.startsWith('/enroll')
+                  ? 'text-indigo-700 font-semibold'
+                  : 'hover:text-indigo-700'
+              }`}
+            >
+              Enroll
+              <span className="absolute left-0 bottom-0 w-0 h-[2px] bg-indigo-700 transition-all duration-300 group-hover:w-full"></span>
+            </span>
+
+            {/* Dropdown menu */}
+            <div className="absolute top-full left-0 mt-1 w-48 bg-white border border-gray-300 rounded-md shadow-lg opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-opacity duration-300 z-50">
+              {enrollSubLinks.map(({ name, to }) => (
+                <Link
+                  key={name}
+                  to={to}
+                  className={`block px-4 py-2 text-gray-800 hover:bg-indigo-100 ${
+                    location.pathname === to ? 'font-semibold text-indigo-700' : ''
+                  }`}
+                >
+                  {name}
+                </Link>
+              ))}
+            </div>
+          </div>
         </nav>
 
         {/* Mobile Toggle */}
@@ -71,14 +104,31 @@ export default function NavBar() {
             to={to}
             onClick={() => setIsOpen(false)}
             className={`block text-gray-800 text-lg transition ${
-              location.pathname === to
-                ? 'text-indigo-700 font-semibold'
-                : 'hover:text-indigo-700'
+              location.pathname === to ? 'text-indigo-700 font-semibold' : 'hover:text-indigo-700'
             }`}
           >
             {name}
           </Link>
         ))}
+
+        {/* Mobile Enroll with sub-links always visible */}
+        <div>
+          <p className="text-gray-800 font-semibold text-lg mb-1">Enroll</p>
+          <div className="pl-4 space-y-1">
+            {enrollSubLinks.map(({ name, to }) => (
+              <Link
+                key={name}
+                to={to}
+                onClick={() => setIsOpen(false)}
+                className={`block text-gray-700 hover:text-indigo-700 ${
+                  location.pathname === to ? 'font-semibold text-indigo-700' : ''
+                }`}
+              >
+                {name}
+              </Link>
+            ))}
+          </div>
+        </div>
       </div>
     </header>
   );

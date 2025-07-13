@@ -6,17 +6,23 @@ import NewPassword from './layout/NewPassword';
 import Home from './layout/Home';
 import ForgotPassword from './layout/ForgotPassword';
 import EmailVerificationPage from './layout/EmailVerificationPage';
-import AdminDashboard from './layout/AdminDashboard';
+import AdminDashboard from './layout/Admin/AdminDashboard';
 import EnrollPage from './layout/EnrollPage';
-import Respond1 from './layout/Respond1';
-import Respond2 from './layout/Respond2';
-import UserDashboard from './layout/UserDashboard';
-import DriverDashboard from './layout/DriverDashboaRD';
+import Respond1 from './layout/Admin/Respond1';
+import Respond2 from './layout/Admin/Respond2';
+import UserDashboard from './layout/User/UserDashboard';
+import DriverDashboard from './layout/Driver/DriverDashboard'
+import AdminBuscard from './layout/Admin/Buscard'
+import AddBus from './layout/Admin/AddBus';
+import  Profile from './layout/Driver/Profile'
+import BusCard from './layout/User/BusCard';
+import DriverEnroll from './layout/DriverEnroll';
+import Map from './layout/Map';
 
 function App() {
   return (
     <Routes>
-      {/* navbar route */}
+      {/* navbar route */}  
       <Route
         path="/"
         element={
@@ -81,7 +87,7 @@ function App() {
         }
       />
       <Route
-        path="/enroll"
+        path="/enroll/user"
         element={
           <>
             <NavBar />
@@ -89,18 +95,36 @@ function App() {
           </>
         }
       />
+      <Route
+        path="/enroll/driver"
+        element={
+          <>
+            <NavBar />
+            <DriverEnroll/>
+          </>
+        }
+      />
 
-      {/* Admin Dashboard route */}
+       {/* Admin Dashboard route */}
       <Route path="/admindashboard" element={<AdminDashboard />}>
         <Route path="respond1" element={<Respond1 />} />
         <Route path="respond2" element={<Respond2 />} />
+         <Route path="adminbuscard" element={<AdminBuscard />} />
+         <Route path="addbus" element={<AddBus/>} />
+         <Route path="map" element={<Map />} /> 
       </Route>
 
-       {/* User dashboard route WITHOUT NavBar */}
-      <Route path="/userdashboard" element={<UserDashboard />} />
+       {/* User dashboard route  */}
+      <Route path="/userdashboard" element={<UserDashboard />} >
+        <Route path='buscard' element={<BusCard/>}/>
+        <Route path="map" element={<Map />} /> 
+      </Route>
 
-      {/* Driver dashboard route WITHOUT NavBar */}
-      <Route path="/driverdashboard" element={<DriverDashboard />} />
+      {/* Driver dashboard route  */}
+      <Route path="/driverdashboard" element={<DriverDashboard/>} >
+        <Route path='profile' element={<Profile/>}/>
+        <Route path="map" element={<Map />} /> 
+      </Route>
 
     </Routes>
   );

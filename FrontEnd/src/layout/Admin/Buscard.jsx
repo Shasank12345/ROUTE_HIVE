@@ -1,7 +1,6 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 
-
 const BusCard = ({ bus }) => {
   const navigate = useNavigate();
 
@@ -16,9 +15,9 @@ const BusCard = ({ bus }) => {
     <div className="relative group border p-6 shadow-lg w-full sm:w-[45%] md:w-[30%] max-w-[350px] rounded-lg bg-gradient-to-br from-blue-50 to-green-50 hover:shadow-xl transition-shadow">
       {/* Header Section */}
       <div className="p-3 mb-4 bg-white border border-gray-200 rounded-lg shadow-sm bg-opacity-90">
-        <h3 className="text-xl font-bold text-center text-gray-800">{bus.name}</h3>
+        <h3 className="text-xl font-bold text-center text-gray-800">{bus.name || 'Bus Name'}</h3>
       </div>
-      
+
       {/* Information Grid */}
       <div className="space-y-3">
         {infoFields.map((field, index) => (
@@ -43,11 +42,11 @@ const BusCard = ({ bus }) => {
 };
 
 const BusDashboard = () => {
-  const [data, setData] = useState(5);
+  const [data] = useState(1); 
 
   return (
     <div className="min-h-screen p-6 bg-gray-50">
-      <h1 className="mb-8 text-3xl font-bold text-center text-gray-800">Bus Services</h1>
+      
       <div className="flex flex-wrap justify-center gap-6">
         {Array.from({ length: data }).map((_, index) => {
           const bus = {
@@ -68,4 +67,4 @@ const BusDashboard = () => {
   );
 };
 
-export default AdminDashboard;
+export default BusDashboard;

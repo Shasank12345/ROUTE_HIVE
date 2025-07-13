@@ -1,4 +1,5 @@
 import React from 'react';
+import { useState } from 'react';
 import { Link, Outlet, useNavigate } from 'react-router-dom';
 import {
   ChevronRight,
@@ -6,11 +7,14 @@ import {
   BusFront,
   Users,
   LayoutDashboard,
-  LogOut // ✅ Added this import
+  LogOut, // ✅ Import added
 } from 'lucide-react';
 
-export default function DriverDashboard() {
+export default function UserDashboard() {
   const navigate = useNavigate();
+    const [data] = useState({
+    name: '',
+  });
 
   const handleLogout = () => {
     if (window.confirm("Are you sure you want to logout?")) {
@@ -33,23 +37,25 @@ export default function DriverDashboard() {
         </Link>
 
         <h1 className="mb-4 text-2xl font-bold tracking-wide text-center text-purple-900 drop-shadow">
-          WELCOME DRIVER
+          WELCOME  {data.name || 'No Name'} 
         </h1>
 
         <Link
-          to="#"
+          to="buscard"
           className="flex items-center gap-3 px-5 py-3 font-medium text-purple-800 transition bg-purple-100 shadow-md rounded-xl hover:bg-purple-200 hover:shadow-lg"
         >
           <LayoutDashboard className="w-5 h-5" />
           Profile
         </Link>
 
+      
+
         <Link
-          to="#"
+          to="map"
           className="flex items-center gap-3 px-5 py-3 font-medium text-purple-800 transition bg-purple-100 shadow-md rounded-xl hover:bg-purple-200 hover:shadow-lg"
         >
           <BusFront className="w-5 h-5" />
-          Bus Route
+          Bus Location
         </Link>
 
         <button
@@ -61,7 +67,7 @@ export default function DriverDashboard() {
         </button>
       </nav>
 
-      {/* Optional Outlet for nested routes */}
+      {/* Optional: render nested routes */}
       <div className="flex-1 p-6">
         <Outlet />
       </div>
