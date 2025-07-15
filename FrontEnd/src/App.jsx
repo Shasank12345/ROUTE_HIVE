@@ -18,6 +18,7 @@ import  Profile from './layout/Driver/Profile'
 import BusCard from './layout/User/BusCard';
 import DriverEnroll from './layout/DriverEnroll';
 import Map from './layout/Map';
+import Detailssee from './layout/Admin/Detailssee';
 
 function App() {
   return (
@@ -111,7 +112,8 @@ function App() {
         <Route path="respond2" element={<Respond2 />} />
          <Route path="adminbuscard" element={<AdminBuscard />} />
          <Route path="addbus" element={<AddBus/>} />
-         <Route path="map" element={<Map />} /> 
+         <Route path="map" element={<Map />} />
+         <Route path="detailssee" element={<Detailssee/>}/> 
       </Route>
 
        {/* User dashboard route  */}

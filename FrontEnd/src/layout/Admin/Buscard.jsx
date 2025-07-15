@@ -57,7 +57,7 @@ const BusDashboard = () => {
             contact: '',
             route: '',
             buttonLabel: 'View Details',
-            buttonLink: `/bus/${index + 1}`
+            buttonLink: `/admindashboard/detailssee`
           };
 
           return <BusCard key={bus.id} bus={bus} />;
