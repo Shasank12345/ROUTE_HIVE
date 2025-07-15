@@ -40,4 +40,21 @@ class Enrolled_User(db.Model):
     pick_at=db.Column(db.String(100), nullable=False)
     Role=db.Column(db.String(100),nullable=False)
     school=db.Column(db.String(100),nullable=False)
+
+class DriverForm_Data(db.Model):
+    id=db.Column(db.Integer, primary_key=True )
+    Full_Name=db.Column(db.String(100),nullable=False,unique=True)
+    email=db.Column(db.String(100),nullable=False,unique=True)
+    phone_num=db.Column(db.String(10),nullable=False,unique=True)
+    preffered_route=db.Column(db.String(100), nullable=False)
+   
+
+class Enrolled_Driver(db.Model):
+    id=db.Column(db.Integer, primary_key=True )
+    Full_Name=db.Column(db.String(100),nullable=False,unique=True)
+    email=db.Column(db.String(100),nullable=False,unique=True)
+    password=db.Column(db.String(100),nullable=False)
+    phone_num=db.Column(db.String(10),nullable=False,unique=True)
+    preffered_route=db.Column(db.String(100), nullable=False)
+    
     

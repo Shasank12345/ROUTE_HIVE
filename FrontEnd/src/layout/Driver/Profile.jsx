@@ -10,6 +10,13 @@ export default function Profile() {
     
   });
 
+  useEffect(() => {
+    fetch('http://localhost:5000/api/driver_profile')
+      .then(res => res.json())
+      .then(data => setFormData(data))
+      .catch(err => console.error('Error fetching profile:', err));
+  }, []);
+
   return (
     <div className="flex items-center justify-center min-h-screen bg-gradient-to-tr from-purple-100 to-yellow-100 px-4">
       <div className="backdrop-blur-sm border border-purple-300 bg-white/70 shadow-2xl rounded-2xl p-8 max-w-sm w-full transition-transform transform hover:scale-105">

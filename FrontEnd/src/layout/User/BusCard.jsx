@@ -12,7 +12,7 @@ export default function BusCard() {
       school: '',
       validdate: '',
     });
-  
+ 
     return (
       <div className="flex items-center justify-center min-h-[700px] px-2">
         <div className="backdrop-blur-sm border border-purple-300 bg-white/70 shadow-2xl rounded-2xl p-8 max-w-sm w-full transition-transform transform hover:scale-105">

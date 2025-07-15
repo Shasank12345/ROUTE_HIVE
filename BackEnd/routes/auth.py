@@ -1,6 +1,6 @@
 from flask import Blueprint, request, jsonify, session
 from datetime import datetime, timezone, timedelta
-from models import Enrolled_User, db, OTPStore, Admin
+from models import Enrolled_User, db, OTPStore, Admin,Enrolled_Driver 
 from utility import generate_otp, send_email
 import bcrypt
 
@@ -27,6 +27,14 @@ def login():
 
         if bcrypt.checkpw(password, stored_hashh):
             return jsonify({"message": "Login successful", "type": "user"}), 200
+        
+    drivers = Enrolled_Driver
+    if drivers:
+        true_pass=drivers.password
+        stored_hashed=true_pass.encode('utf-8')
+        if bcrypt.checkpw(password, stored_hashed):
+
+            return jsonify({"message": "Login successful", "type": "driver"}), 200
 
     return jsonify({'message': "Invalid Credentials"}), 401
 @auth.route('/resend_otp',methods=['POST'])
@@ -63,8 +71,11 @@ def forgot_password():
     data = request.json
     email = data.get('email')
     user = Enrolled_User.query.filter_by(email=email).first()
+    drivers=Enrolled_Driver.query.filter_by(email=email).first()
 
     if not user:
+        return jsonify({'message': 'Email Not Found'}), 404
+    if not drivers:
         return jsonify({'message': 'Email Not Found'}), 404
 
     otp = generate_otp()
@@ -126,20 +137,25 @@ def verify_otp():
 def reset_password():
     data = request.json
     email = session.get('reset_email')
-
+    
     if not email:
         return jsonify({'message': 'Session expired or invalid, retry forgot password process'}), 400
+    
+    user = Enrolled_User.query.filter_by(email=email).first()  
+    drivers = Enrolled_Driver.query.filter_by(email=email).first()
 
-    user = Enrolled_User.query.filter_by(email=email).first()
-    if not user:
+    if not user and not drivers:
         return jsonify({'message': 'User not found'}), 404
-
+    
     new_password = data.get('new_password')
     if not new_password:
         return jsonify({'message': 'New password is required'}), 400
 
     hashed_pw = bcrypt.hashpw(new_password.encode('utf-8'), bcrypt.gensalt()).decode('utf-8')
-    user.password = hashed_pw
+    if user:
+        user.password = hashed_pw
+    else:
+        drivers.password = hashed_pw
 
     db.session.commit()
 

@@ -1,5 +1,5 @@
 from flask import Blueprint,jsonify,request
-from models import db,Form_Data,Enrolled_User
+from models import db,Form_Data,Enrolled_User,DriverForm_Data,Enrolled_Driver 
 from utility import send_mail,generate_password
 import bcrypt
 
@@ -41,8 +41,6 @@ def check():
             'Role':d.Role,
             'School':d.school
         
-
-
         })
         print(result)
     return jsonify(result)
@@ -95,3 +93,87 @@ def reject():
     db.session.commit()
 
     return jsonify({'message':'User Rejected and Email sent Sucessfully'}),200
+
+
+
+
+@enrolll.route('/enrolls',methods=['POST'])
+def enrolls():
+    data=request.get_json()
+    Full_Name=data.get('name')
+    email=data.get('email')
+    phone_num=data.get('phone')
+    preffered_route=data.get('preffered_route')
+
+    add=DriverForm_Data(Full_Name=Full_Name,email=email,phone_num=phone_num,preffered_route=preffered_route)
+    db.session.add(add)
+    db.session.commit()
+    return jsonify({'Full_Name':add.Full_Name,
+                    'email':add.email,
+                    'phone_num':add.phone_num,
+                    'preffered_route':add.preffered_route,
+           
+                    }),201
+@enrolll.route('/checked',methods=['GET'])
+def checked():
+    data=DriverForm_Data.query.all()
+    result=[]
+    for d in data:
+        result.append({
+            'id':d.id,
+            'Full_Name':d.Full_Name,
+            'email':d.email,
+            'phone_num':d.phone_num,
+            'preffered_route':d.preffered_route,
+    
+        })
+        print(result)
+    return jsonify(result)
+
+@enrolll.route('/accepted', methods=['POST'])
+def accepted():
+    data = request.get_json()
+    email = data.get('email')
+    d = DriverForm_Data.query.filter_by(email=email).first()
+
+    if not d:
+        return jsonify({'message': 'ENTRY NOT FOUND'}), 404
+
+    password = generate_password()
+    password_byte = password.encode('utf-8')
+    hashed = bcrypt.hashpw(password_byte, bcrypt.gensalt())
+    hashed_password_str = hashed.decode('utf-8')
+
+    accept = Enrolled_Driver(
+        Full_Name=d.Full_Name,
+        email=email,
+        password=hashed_password_str,
+        phone_num=d.phone_num,
+        preffered_route=d.preffered_route,
+       
+    )
+    db.session.add(accept)
+    db.session.delete(d)
+    db.session.commit()
+
+    subject = 'ENROLLMENT APPROVED SUCESSFULLY'
+    body = f"Hello {d.Full_Name},\n\nYour enrollment has been approved.\n\nYour login password is: {password}\n\nPlease login and change it as soon as possible.\n\nRegards,\nRouteHive Team"
+    send_mail(email, subject, body)
+
+    return jsonify({'message': 'Driver enrolled sucessfully and email is sent sucessfully'})
+
+@enrolll.route('/rejected',methods=['POST'])
+def rejected():
+    data=request.get_json()
+    email=data.get('email')
+    a=DriverForm_Data.query.filter_by(email=email).first()
+    if not a :
+        return jsonify({'message':'DRIVER NOT FOUND'}),404
+    
+    subject='ENROLLMENT FORM REJECTED'
+    body=f"Hello {a.Full_Name},\n\nWe regret to inform you that your transport enrollment has been rejected.\n\nPlease re-enroll with correct details if needed.\n\nRegards,\nRouteHive Team"
+    send_mail(email,subject,body)
+    db.session.delete(a)
+    db.session.commit()
+
+    return jsonify({'message':'Driver Rejected and Email sent Sucessfully'}),200

@@ -4,7 +4,6 @@ from config import Config
 from models import db, Admin
 from routes import register_routes
 import bcrypt
-import os
 
 app = Flask(__name__)
 app.config.from_object(Config)
