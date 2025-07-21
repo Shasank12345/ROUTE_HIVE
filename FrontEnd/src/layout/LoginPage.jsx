@@ -7,7 +7,7 @@ export default function LoginPage() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [errorMsg, setErrorMsg] = useState('');
-  const[message, setMsg]=useState('');
+  const [message, setMsg] = useState('');
 
   const navigate = useNavigate();
   const togglePassword = () => setShowPassword(!showPassword);
@@ -26,24 +26,27 @@ export default function LoginPage() {
     }
 
     setErrorMsg('');
+    setMsg('');
+
     try {
       const response = await fetch('http://localhost:5000/login', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ email, password }),
+        credentials: 'include', 
       });
 
       const data = await response.json();
 
-      if (data.type=== "admin") {
+      if (data.type === 'admin') {
+        setMsg(data.message || 'Login successful');
         navigate('/AdminDashboard');
-        setMsg(data.message||'login sucessful');
-
-      }
-      else if(data.type=="user"){
-        alert('LOGIN SUCESSFULLY');
-        setMsg(data.message||'login sucessful');
-
+      } else if (data.type === 'user') {
+        setMsg(data.message || 'Login successful');
+        navigate('/UserDashboard'); 
+      } else if (data.type === 'driver') {
+        setMsg(data.message || 'Login successful');
+        navigate('/DriverDashboard');
       } else {
         setErrorMsg(data.message || 'Login failed');
       }
@@ -73,13 +76,21 @@ export default function LoginPage() {
           <p className="text-red-300 text-sm text-center mb-4">{errorMsg}</p>
         )}
 
+        {message && (
+          <p className="text-green-300 text-sm text-center mb-4">{message}</p>
+        )}
+
         <form onSubmit={(e) => e.preventDefault()} className="space-y-6">
           <div className="relative">
             <input
               type="email"
               placeholder="Email"
               value={email}
-              onChange={(e) => setEmail(e.target.value)}
+              onChange={(e) => {
+                setEmail(e.target.value);
+                setErrorMsg('');
+                setMsg('');
+              }}
               className="w-full px-4 py-3 rounded-xl bg-white/20 text-white placeholder-white focus:outline-none focus:ring-2 focus:ring-purple-400"
             />
           </div>
@@ -89,7 +100,11 @@ export default function LoginPage() {
               type={showPassword ? 'text' : 'password'}
               placeholder="Password"
               value={password}
-              onChange={(e) => setPassword(e.target.value)}
+              onChange={(e) => {
+                setPassword(e.target.value);
+                setErrorMsg('');
+                setMsg('');
+              }}
               className="w-full px-4 py-3 pr-10 rounded-xl bg-white/20 text-white placeholder-white focus:outline-none focus:ring-2 focus:ring-purple-400"
             />
             <button
@@ -105,6 +120,7 @@ export default function LoginPage() {
             <button
               onClick={onforgot}
               className="text-sm text-purple-300 hover:text-purple-100 transition"
+              type="button"
             >
               Forgot Password?
             </button>
@@ -113,6 +129,7 @@ export default function LoginPage() {
           <button
             onClick={login}
             className="w-full py-3 rounded-xl bg-purple-600 text-white hover:bg-purple-700 transition shadow-md"
+            type="button"
           >
             Login
           </button>

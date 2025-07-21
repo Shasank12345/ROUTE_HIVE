@@ -1,70 +1,112 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import busImage from '../../image/bus2.jpg'; // your bus background image
 
-const BusCard = ({ bus }) => {
+export default function BusCard() {
+  const [buses, setBuses] = useState([]);
   const navigate = useNavigate();
 
-  const infoFields = [
-    { label: 'Bus Number', value: bus.number },
-    { label: 'Driver Name', value: bus.driverName },
-    { label: 'Contact', value: bus.contact },
-    { label: 'Route', value: bus.route }
-  ];
+  useEffect(() => {
+    fetch('http://localhost:5000/send')
+      .then(res => {
+        if (!res.ok) throw new Error('Network response not ok');
+        return res.json();
+      })
+      .then(data => setBuses(data))
+      .catch(err => console.error('Fetch error:', err));
+  }, []);
+
+  const handleViewDetails = (bus) => {
+    // Navigate to the frontend React route where Detailssee component is rendered
+    navigate('/admindashboard/detailssee', { state: { busId: bus.id, busName: bus.Bus_Name } });
+  };
+
+  // Delete bus and assigned users
+  const handleDelete = async (busId) => {
+    if (!window.confirm('Are you sure you want to delete this bus and its assigned users?')) return;
+
+    try {
+      const res = await fetch(`http://localhost:5000/delete_bus/${busId}`, { method: 'DELETE' });
+      if (res.ok) {
+        alert('Bus and assigned users deleted!');
+        setBuses(prev => prev.filter(bus => bus.id !== busId)); // remove deleted bus from state
+      } else {
+        const data = await res.json();
+        alert('Error: ' + (data.error || 'Failed to delete'));
+      }
+    } catch (error) {
+      console.error('Delete error:', error);
+      alert('Server error');
+    }
+  };
 
   return (
-    <div className="relative group border p-6 shadow-lg w-full sm:w-[45%] md:w-[30%] max-w-[350px] rounded-lg bg-gradient-to-br from-blue-50 to-green-50 hover:shadow-xl transition-shadow">
-      {/* Header Section */}
-      <div className="p-3 mb-4 bg-white border border-gray-200 rounded-lg shadow-sm bg-opacity-90">
-        <h3 className="text-xl font-bold text-center text-gray-800">{bus.name || 'Bus Name'}</h3>
-      </div>
+    <div className="p-4 pt-[60px] bg-gray-50 min-h-screen">
+      <h2 className="text-2xl font-semibold mb-6 text-center text-purple-800">
+        BUS INFORMATION
+      </h2>
+      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-8 justify-items-center">
+        {buses.length === 0 ? (
+          <p className="text-gray-600">No bus data available.</p>
+        ) : (
+          buses.map(bus => (
+            <div
+              key={bus.id}
+              className="relative group border border-gray-300 rounded-lg shadow-md max-w-sm w-full p-6 bg-white overflow-hidden"
+              style={{ minHeight: '240px' }}
+            >
+              {/* Blurry background image */}
+              <div
+                style={{
+                  backgroundImage: `url(${busImage})`,
+                  backgroundSize: 'contain',
+                  backgroundRepeat: 'no-repeat',
+                  backgroundPosition: 'center bottom',
+                  filter: 'blur(6px)',
+                  position: 'absolute',
+                  top: 0,
+                  left: 0,
+                  width: '100%',
+                  height: '100%',
+                  zIndex: 0,
+                  pointerEvents: 'none',
+                  borderRadius: '0.5rem', // matches rounded-lg
+                }}
+              ></div>
 
-      {/* Information Grid */}
-      <div className="space-y-3">
-        {infoFields.map((field, index) => (
-          <div key={index} className="p-3 bg-white border border-gray-200 rounded-lg shadow-sm bg-opacity-90">
-            <p className="font-semibold text-gray-700">{field.label}:</p>
-            <p className="mt-1 text-gray-600">{field.value || 'Not available'}</p>
-          </div>
-        ))}
-      </div>
+              {/* Content on top */}
+              <div style={{ position: 'relative', zIndex: 1 }}>
+                <h3 className="text-xl font-bold mb-4 text-center text-purple-700 drop-shadow-sm">
+                  {bus.Bus_Name || 'No Name'}
+                </h3>
+                <p className="mb-1"><strong>Bus Number:</strong> {bus.Bus_Number || 'N/A'}</p>
+                <p className="mb-1"><strong>Route:</strong> {bus.Route || 'N/A'}</p>
+                <p className="mb-1"><strong>Driver Email:</strong> {bus.Driver_Email || 'N/A'}</p>
+                <p className="mb-1"><strong>Driver Phone:</strong> {bus.Driver_Phone || 'N/A'}</p>
 
-      {/* Hover Action */}
-      <div className="absolute inset-0 z-10 items-center justify-center hidden rounded-lg group-hover:flex backdrop-blur-[2px] bg-black bg-opacity-10">
-        <button
-          onClick={() => navigate(bus.buttonLink)}
-          className="px-5 py-2 text-white transition-colors bg-blue-600 rounded-lg shadow-md hover:bg-blue-700"
-        >
-          {bus.buttonLabel}
-        </button>
+                {/* Hover overlay with buttons */}
+                <div
+                  className="absolute inset-0 bg-black bg-opacity-40 rounded-lg flex flex-col items-center justify-center gap-4 opacity-0 group-hover:opacity-100 transition-opacity duration-300"
+                  style={{ zIndex: 2 }}
+                >
+                  <button
+                    onClick={() => handleViewDetails(bus)}
+                    className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg font-semibold"
+                  >
+                    View Details
+                  </button>
+                  <button
+                    onClick={() => handleDelete(bus.id)}
+                    className="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-lg font-semibold"
+                  >
+                    Delete Bus
+                  </button>
+                </div>
+              </div>
+            </div>
+          ))
+        )}
       </div>
     </div>
   );
-};
-
-const BusDashboard = () => {
-  const [data] = useState(1); 
-
-  return (
-    <div className="min-h-screen p-6 bg-gray-50">
-      
-      <div className="flex flex-wrap justify-center gap-6">
-        {Array.from({ length: data }).map((_, index) => {
-          const bus = {
-            id: index,
-            name: '',
-            number: '',
-            driverName: '',
-            contact: '',
-            route: '',
-            buttonLabel: 'View Details',
-            buttonLink: `/admindashboard/detailssee`
-          };
-
-          return <BusCard key={bus.id} bus={bus} />;
-        })}
-      </div>
-    </div>
-  );
-};
-
-export default BusDashboard;
+}

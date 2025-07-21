@@ -16,6 +16,12 @@ def enroll():
     pick_at=data.get('address')
     Role=data.get('role')
     School=data.get('school')
+    
+
+    check=Enrolled_User.query.filter_by(email=email).first()
+    if check :
+        return jsonify({'message':'YOU ARE ALREADY ENROLLED'}),409
+    
 
     ent=Form_Data(Full_Name=Full_Name,email=email,phone_num=phone_num,pick_at=pick_at,Role=Role,school=School)
     db.session.add(ent)
@@ -103,15 +109,21 @@ def enrolls():
     Full_Name=data.get('name')
     email=data.get('email')
     phone_num=data.get('phone')
-    preffered_route=data.get('preffered_route')
-
-    add=DriverForm_Data(Full_Name=Full_Name,email=email,phone_num=phone_num,preffered_route=preffered_route)
+    address=data.get('address')
+    preferred_route=data.get('preferred_route')
+    if not all([Full_Name,email,phone_num,address,preferred_route]):
+        return jsonify({'message':'error missing fields'}),401
+    check=Enrolled_Driver.query.filter_by(email=email).first()
+    if check :
+        return jsonify({'message':'YOU ARE ALREADY ENROLLED'}),409
+    add=DriverForm_Data(Full_Name=Full_Name,email=email,phone_num=phone_num,address=address,preferred_route=preferred_route)
     db.session.add(add)
     db.session.commit()
     return jsonify({'Full_Name':add.Full_Name,
                     'email':add.email,
                     'phone_num':add.phone_num,
-                    'preffered_route':add.preffered_route,
+                    'address':add.address,
+                    'preferred_route':add.preferred_route,
            
                     }),201
 @enrolll.route('/checked',methods=['GET'])
@@ -124,7 +136,8 @@ def checked():
             'Full_Name':d.Full_Name,
             'email':d.email,
             'phone_num':d.phone_num,
-            'preffered_route':d.preffered_route,
+            'address':d.address,
+            'preferred_route':d.preferred_route,
     
         })
         print(result)
@@ -149,7 +162,8 @@ def accepted():
         email=email,
         password=hashed_password_str,
         phone_num=d.phone_num,
-        preffered_route=d.preffered_route,
+        address=d.address,
+        preferred_route=d.preferred_route,
        
     )
     db.session.add(accept)
@@ -157,7 +171,7 @@ def accepted():
     db.session.commit()
 
     subject = 'ENROLLMENT APPROVED SUCESSFULLY'
-    body = f"Hello {d.Full_Name},\n\nYour enrollment has been approved.\n\nYour login password is: {password}\n\nPlease login and change it as soon as possible.\n\nRegards,\nRouteHive Team"
+    body = f"Hello {d.Full_Name},\n\nYour enrollment as driver  has been approved.\n\nYour login password is: {password}\n\nPlease login and change it as soon as possible.\n\nRegards,\nRouteHive Team"
     send_mail(email, subject, body)
 
     return jsonify({'message': 'Driver enrolled sucessfully and email is sent sucessfully'})
@@ -171,7 +185,7 @@ def rejected():
         return jsonify({'message':'DRIVER NOT FOUND'}),404
     
     subject='ENROLLMENT FORM REJECTED'
-    body=f"Hello {a.Full_Name},\n\nWe regret to inform you that your transport enrollment has been rejected.\n\nPlease re-enroll with correct details if needed.\n\nRegards,\nRouteHive Team"
+    body=f"Hello {a.Full_Name},\n\nWe regret to inform you that your driver enrollment  form has been rejected.\n\nPlease re-enroll with correct details if needed.\n\nRegards,\nRouteHive Team"
     send_mail(email,subject,body)
     db.session.delete(a)
     db.session.commit()

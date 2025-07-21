@@ -18,21 +18,19 @@ with app.app_context():
     print("Database created")
 
     admin_email = Config.MAIL_USERNAME
-    raw_password = Config.ADMIN_PASSWORD
-    print(admin_email)
-    print(raw_password)
+    admin_password = Config.ADMIN_PASSWORD 
 
-    if admin_email and raw_password:
+    if admin_email and admin_password:
         existing_admin = Admin.query.filter_by(email=admin_email).first()
 
         if not existing_admin:
-            hashed_pw = bcrypt.hashpw(raw_password.encode('utf-8'), bcrypt.gensalt()).decode('utf-8')
+            hashed_pw = bcrypt.hashpw(admin_password.encode('utf-8'), bcrypt.gensalt()).decode('utf-8')
             admin = Admin(email=admin_email, password=hashed_pw)
             db.session.add(admin)
             db.session.commit()
             print("Default admin created")
     else:
-        print(" MAIL_USERNAME or MAIL_PASSWORD not set in .env")
+        print("MAIL_USERNAME or ADMIN_PASSWORD not set in config")
 
-if __name__=='__main__':
+if __name__ == '__main__':
     app.run(debug=True)

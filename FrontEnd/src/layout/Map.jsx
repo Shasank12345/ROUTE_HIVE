@@ -2,132 +2,163 @@ import React, { useEffect, useRef, useState } from 'react';
 import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
 
-export default function Map() {
+export default function UserMap() {
   const mapRef = useRef(null);
-  const mapContainerRef = useRef(null);
   const userMarkerRef = useRef(null);
   const busMarkerRef = useRef(null);
-  const busPathRef = useRef([]);
-  const polylineRef = useRef(null);
+  const intervalRef = useRef(null);
 
-  const [userPos, setUserPos] = useState(null);
+  const BUS_ICON = new L.Icon({
+    iconUrl: '/bus-icon.png',
+    iconSize: [40, 40],
+    iconAnchor: [20, 40],
+  });
 
-  useEffect(() => {
-    // Initialize the Leaflet map
-    if (!mapRef.current) {
-      const bounds = L.latLngBounds([27.60, 85.25], [27.82, 85.65]);
+  const USER_ICON = new L.Icon({
+    iconUrl: '/user-icon.png',
+    iconSize: [30, 30],
+    iconAnchor: [15, 30],
+  });
 
-     mapRef.current = L.map(mapContainerRef.current, {
-  center: [(27.6935 + 27.6224) / 2, (85.2848 + 85.5466) / 2],
-  zoom: 12,
-  maxZoom: 18,
-  minZoom: 10,
-  maxBounds: bounds,
-  maxBoundsViscosity: 0.9,
-})
+  const [userLocation, setUserLocation] = useState(null);
 
-      L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-        attribution: '© OpenStreetMap contributors',
-        maxZoom: 19,
-      }).addTo(mapRef.current);
+  // Flags to track if notifications were sent
+  const nearNotifiedRef = useRef(false);
+  const arrivedNotifiedRef = useRef(false);
+
+  // Helper to calculate distance in meters between two lat/lng points
+  function getDistance(lat1, lon1, lat2, lon2) {
+    function toRad(x) {
+      return (x * Math.PI) / 180;
+    }
+    const R = 6371000; // meters
+    const dLat = toRad(lat2 - lat1);
+    const dLon = toRad(lon2 - lon1);
+    const a =
+      Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+      Math.cos(toRad(lat1)) * Math.cos(toRad(lat2)) * Math.sin(dLon / 2) * Math.sin(dLon / 2);
+    const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+    return R * c;
+  }
+
+  const startBusSimulation = (start, end) => {
+    let currentLat = start.lat;
+    let currentLng = start.lng;
+    const steps = 300; 
+    let step = 0;
+
+    const deltaLat = (end.lat - currentLat) / steps;
+    const deltaLng = (end.lng - currentLng) / steps;
+
+    if (busMarkerRef.current) {
+      busMarkerRef.current.remove();
     }
 
-    // ✅ Track user's current GPS location
-    const watchId = navigator.geolocation.watchPosition(
+    busMarkerRef.current = L.marker([currentLat, currentLng], { icon: BUS_ICON }).addTo(mapRef.current);
+
+    if (intervalRef.current) {
+      clearInterval(intervalRef.current);
+    }
+
+    intervalRef.current = setInterval(() => {
+      if (step >= steps) {
+        clearInterval(intervalRef.current);
+        return;
+      }
+
+      currentLat += deltaLat;
+      currentLng += deltaLng;
+      busMarkerRef.current.setLatLng([currentLat, currentLng]);
+
+      
+      const dist = getDistance(currentLat, currentLng, end.lat, end.lng);
+
+      
+      if (dist <= 300 && !nearNotifiedRef.current) {
+        nearNotifiedRef.current = true;
+        fetch('http://localhost:5000/notify_user/near', {
+          method: 'POST',
+          credentials: 'include',
+        }).catch(console.error);
+      }
+
+      if (dist <= 10 && !arrivedNotifiedRef.current) {
+        arrivedNotifiedRef.current = true;
+        fetch('http://localhost:5000/notify_user/arrived', {
+          method: 'POST',
+          credentials: 'include',
+        }).catch(console.error);
+      }
+
+      step++;
+    }, 300); 
+  };
+
+  useEffect(() => {
+    if (!navigator.geolocation) {
+      alert('Please enable GPS to view your location.');
+      return;
+    }
+
+    navigator.geolocation.getCurrentPosition(
       (pos) => {
         const { latitude, longitude } = pos.coords;
-        const newPos = [latitude, longitude];
-        setUserPos(newPos);
 
-        if (!userMarkerRef.current) {
-          userMarkerRef.current = L.marker(newPos, {
-            title: 'You',
-            icon: L.icon({
-              iconUrl: 'https://cdn-icons-png.flaticon.com/512/64/64113.png',
-              iconSize: [30, 30],
-              iconAnchor: [15, 30],
-            }),
+        if (!mapRef.current) {
+          mapRef.current = L.map('map').setView([latitude, longitude], 15);
+          L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            attribution: '&copy; OpenStreetMap contributors',
           }).addTo(mapRef.current);
-        } else {
-          userMarkerRef.current.setLatLng(newPos);
         }
 
-        // Optionally auto center map on user
-        // mapRef.current.setView(newPos, 14);
+        fetch('http://localhost:5000/simulate_bus', {
+          method: 'POST',
+          credentials: 'include',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ latitude, longitude }),
+        })
+          .then((res) => res.json())
+          .then((data) => {
+            if (data && data.bus_start && data.user_location) {
+              setUserLocation(data.user_location);
+              nearNotifiedRef.current = false;
+              arrivedNotifiedRef.current = false;
+              startBusSimulation(data.bus_start, data.user_location);
+            }
+          })
+          .catch((err) => console.error('Simulation error:', err));
       },
       (err) => {
-        alert("GPS error: " + err.message);
-      },
-      { enableHighAccuracy: true }
+        alert('Please enable GPS to view your location.');
+        console.error(err);
+      }
     );
 
-    // ✅ Simulate Bus Movement
-    let busLat = 27.6194;
-    let busLng = 85.5388;
-
-    const simulateBus = setInterval(() => {
-      // Simulate GPS changes
-      busLat += 0.0005;
-      busLng += 0.0007;
-
-      const newBusPos = [busLat, busLng];
-      busPathRef.current.push(newBusPos);
-
-      // Create or update bus marker
-      if (!busMarkerRef.current) {
-        busMarkerRef.current = L.marker(newBusPos, {
-          title: 'Bus',
-          icon: L.icon({
-            iconUrl: 'https://www.pngfind.com/pngs/m/686-6862411_bus-icon-stop-positioning-logo-hq-image-free.png', // better bus icon
-            iconSize: [38, 38],
-            iconAnchor: [19, 38],
-          }),
-        }).addTo(mapRef.current);
-      } else {
-        busMarkerRef.current.setLatLng(newBusPos);
-      }
-
-      // Create or update polyline path
-      if (!polylineRef.current) {
-        polylineRef.current = L.polyline(busPathRef.current, {
-          color: 'blue',
-          weight: 4,
-        }).addTo(mapRef.current);
-      } else {
-        polylineRef.current.setLatLngs(busPathRef.current);
-      }
-    }, 2000); // moves every 2 seconds
-
-    // Optional: stop simulation after 20 seconds
-    setTimeout(() => {
-      clearInterval(simulateBus);
-    }, 20000);
-
-    // Cleanup on component unmount
     return () => {
-      navigator.geolocation.clearWatch(watchId);
-      clearInterval(simulateBus);
-      mapRef.current?.remove();
-      mapRef.current = null;
+      if (intervalRef.current) {
+        clearInterval(intervalRef.current);
+      }
     };
   }, []);
 
+  useEffect(() => {
+    if (mapRef.current && userLocation) {
+      if (userMarkerRef.current) {
+        userMarkerRef.current.setLatLng([userLocation.lat, userLocation.lng]);
+      } else {
+        userMarkerRef.current = L.marker([userLocation.lat, userLocation.lng], {
+          icon: USER_ICON,
+        }).addTo(mapRef.current);
+      }
+    }
+  }, [userLocation]);
+
   return (
-    <>
-      
-
+    <div>
       <div
-        ref={mapContainerRef}
-        style={{
-          height: '500px',
-          width: '90%',
-          margin: '20px auto',
-          border: '1px solid #ccc',
-          borderRadius: '8px',
-        }}
-      />
-
-    
-    </>
+        id="map"
+        style={{ height: '500px', width: '100%', borderRadius: '10px', marginTop: '20px' }}
+      ></div>
+    </div>
   );
 }

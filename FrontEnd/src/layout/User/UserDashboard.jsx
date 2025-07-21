@@ -1,26 +1,55 @@
-import React from 'react';
-import { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link, Outlet, useNavigate } from 'react-router-dom';
 import {
-  ChevronRight,
-  Bell,
-  BusFront,
-  Users,
   LayoutDashboard,
-  LogOut, // ✅ Import added
+  BusFront,
+  LogOut,
 } from 'lucide-react';
 
 export default function UserDashboard() {
   const navigate = useNavigate();
-    const [data] = useState({
-    name: '',
-  });
+  const [name, setName] = useState('');
+  const [error, setError] = useState('');
 
-  const handleLogout = () => {
+  useEffect(() => {
+    // Fetch user info on mount
+    const fetchUserName = async () => {
+      try {
+        const res = await fetch('http://localhost:5000/getuser_info', {
+          method: 'GET',
+          credentials: 'include', // send session cookie
+        });
+        const data = await res.json();
+        if (res.ok) {
+          setName(data.name);
+        } else {
+          setError(data.error || data.message || 'Failed to fetch user info');
+        }
+      } catch (err) {
+        setError('Server error, please try again later');
+      }
+    };
+    fetchUserName();
+  }, []);
+
+  const handleLogout = async () => {
     if (window.confirm("Are you sure you want to logout?")) {
-      localStorage.removeItem('token');
-      sessionStorage.clear();
-      navigate('/login');
+      try {
+        const res = await fetch('http://localhost:5000/logout', {
+          method: 'POST',
+          credentials: 'include', // send session cookie
+        });
+
+        if (res.ok) {
+          localStorage.removeItem('token');
+          sessionStorage.clear();
+          navigate('/login');
+        } else {
+          alert('Logout failed, please try again.');
+        }
+      } catch (error) {
+        alert('Server error during logout.');
+      }
     }
   };
 
@@ -37,8 +66,12 @@ export default function UserDashboard() {
         </Link>
 
         <h1 className="mb-4 text-2xl font-bold tracking-wide text-center text-purple-900 drop-shadow">
-          WELCOME  {data.name || 'No Name'} 
+          WELCOME {name || 'No Name'}
         </h1>
+
+        {error && (
+          <p className="text-red-500 text-center text-sm mb-4">{error}</p>
+        )}
 
         <Link
           to="buscard"
@@ -47,8 +80,6 @@ export default function UserDashboard() {
           <LayoutDashboard className="w-5 h-5" />
           Profile
         </Link>
-
-      
 
         <Link
           to="map"
@@ -67,7 +98,6 @@ export default function UserDashboard() {
         </button>
       </nav>
 
-      {/* Optional: render nested routes */}
       <div className="flex-1 p-6">
         <Outlet />
       </div>
